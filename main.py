@@ -54,15 +54,70 @@ def movimentar_agente(labirinto, pos_agente, movimento, tamanho):
 
     return proximo_pos
 
+def carregar(pos_agente, base_carregamento, bateria, porcentagem_critica_bateria, labirinto):
+    if bateria <= porcentagem_critica_bateria:
+        if pos_agente != base_carregamento and bateria <= 0:
+            print("\n\nOps! Parece que o seu aspirador descarregou!")
+            exit()
+        elif pos_agente != base_carregamento and bateria > 0:
+            # Converta a tupla em uma lista para poder modificar os valores
+            pos_agente = list(pos_agente)
+            
+            # Movimento vertical
+            if pos_agente[0] < base_carregamento[0]:
+                pos_agente[0] += 1
+            elif pos_agente[0] > base_carregamento[0]:
+                pos_agente[0] -= 1
+            
+            # Movimento horizontal
+            if pos_agente[1] < base_carregamento[1]:
+                pos_agente[1] += 1
+            elif pos_agente[1] > base_carregamento[1]:
+                pos_agente[1] -= 1
+            
+            # Converta a lista de volta para uma tupla
+            pos_agente = tuple(pos_agente)
+            exibir_labirinto(labirinto, pos_agente)  # Exibe o labirinto após o movimento
+        elif pos_agente == base_carregamento:
+            while bateria < 100:
+                incremento = 10 # Incrementa 10% por iteração
+                bateria += incremento
+                bateria = min(bateria, 100)
+                print(f"Bateria recarregada: {bateria}% | {bateria/10:.0f} / 10")
+                time.sleep(1)
+            
+            print("Bateria recarregada para 100% na base de carregamento.")
+    
+    print(f"Bateria atual: {bateria}%")
+    return pos_agente, bateria
+
+
+def sujar(labirinto):
+    listaDeSujeira = []
+    for i, linha in enumerate(labirinto):
+        for j, cell in enumerate(linha):        
+            if cell == 'L':
+                coordenada = (i, j)
+                listaDeSujeira.append(coordenada)
+    if listaDeSujeira:
+        gerarNovaSujeira = random.choice(listaDeSujeira)
+        labirinto[gerarNovaSujeira[0]][gerarNovaSujeira[1]] = 'S'
+
 if __name__ == "__main__":
     tamanho_labirinto = 5
     labirinto = criar_labirinto(tamanho_labirinto)
+    bateria = 100
+    porcentagem_critica_bateria = 20
     pos_agente = (2, 2)
-    movimento = MovimentosAgenteLabirinto.CIMA
+    base_carregamento = (2, 2)
 
     exibir_labirinto(labirinto, pos_agente)
 
     while any("S" in linha for linha in labirinto):
-        pos_agente = movimentar_agente(labirinto, pos_agente, movimento, tamanho_labirinto)
+        bateria -= 5  # Pingar a bateria a cada iteração
+        if bateria > porcentagem_critica_bateria:
+            pos_agente = movimentar_agente(labirinto, pos_agente, random.choice(list(MovimentosAgenteLabirinto)), tamanho_labirinto)
+        pos_agente, bateria = carregar(pos_agente, base_carregamento, bateria, porcentagem_critica_bateria, labirinto)
+        sujar(labirinto)
         exibir_labirinto(labirinto, pos_agente)
         time.sleep(1.5)
