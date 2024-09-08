@@ -11,13 +11,22 @@ class MovimentosAgenteLabirinto(Enum):
 def criar_labirinto(tamanho):
     return [["S" for _ in range(tamanho)] for _ in range(tamanho)]
 
+COR_CIANO = "\033[36m"
+COR_PADRAO = "\033[0m"
+
 def exibir_labirinto(labirinto, pos_agente):
     for i, linha in enumerate(labirinto):
         for j, cell in enumerate(linha):
             if (i, j) == pos_agente:
-                print("*A*", end=" | ")
+                if (i, j) == (2, 2) or (i, j) == (2, 1):
+                    print(f"{COR_CIANO}A{COR_PADRAO}", end=" ¦ ")
+                else:
+                    print(f"{COR_CIANO}A{COR_PADRAO}", end=" | ")
             else:
-                print(cell, end=" | ")
+                if (i, j) == (2, 2) or (i, j) == (2, 1):
+                    print(cell, end=" ¦ ")
+                else:
+                    print(cell, end=" | ")
         print("\n" + "-" * (4 * len(linha) - 1))
     print("\n")
 
@@ -91,7 +100,7 @@ def carregar(pos_agente, base_carregamento, bateria, porcentagem_critica_bateria
             
             print("Bateria recarregada para 100% na base de carregamento.")
     
-    print(f"Bateria atual: {bateria}%")
+    print(f"Bateria atual: {bateria}%\n")
     return pos_agente, bateria
 
 def sujar(labirinto):
