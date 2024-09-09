@@ -32,14 +32,23 @@ def exibir_labirinto(labirinto, pos_agente):
 
 def retornar_movimento(pos, movimento, tamanho):
     x, y = pos
-    if movimento == MovimentosAgenteLabirinto.CIMA and x > 0:
-        x -= 1
-    elif movimento == MovimentosAgenteLabirinto.BAIXO and x < tamanho - 1:
-        x += 1
-    elif movimento == MovimentosAgenteLabirinto.ESQUERDA and y > 0:
-        y -= 1
-    elif movimento == MovimentosAgenteLabirinto.DIREITA and y < tamanho - 1:
-        y += 1
+    movimento_valido = False
+    
+    while not movimento_valido:
+        if movimento == MovimentosAgenteLabirinto.CIMA and x > 0:
+            x -= 1
+            movimento_valido = True
+        elif movimento == MovimentosAgenteLabirinto.BAIXO and x < tamanho - 1:
+            x += 1
+            movimento_valido = True
+        elif movimento == MovimentosAgenteLabirinto.ESQUERDA and y > 0:
+            y -= 1
+            movimento_valido = True
+        elif movimento == MovimentosAgenteLabirinto.DIREITA and y < tamanho - 1:
+            y += 1
+            movimento_valido = True
+        else:
+            movimento = random.choice(list(MovimentosAgenteLabirinto))
     return (x, y)
 
 def limpar_vizinhos(labirinto, pos):
@@ -64,7 +73,7 @@ def movimentar_agente(labirinto, pos_agente, movimento, tamanho):
     return proximo_pos
 
 def carregar(pos_agente, base_carregamento, bateria, porcentagem_critica_bateria, labirinto):
-    bateria -= 5
+    bateria -= (bateria_informada * 0.05)
     if bateria <= porcentagem_critica_bateria:
         if pos_agente != base_carregamento and bateria <= 0:
             print("\n\nOps! Parece que o seu aspirador descarregou!")
@@ -91,16 +100,16 @@ def carregar(pos_agente, base_carregamento, bateria, porcentagem_critica_bateria
             exibir_labirinto(labirinto, pos_agente)  # Exibe o labirinto após o movimento
         elif pos_agente == base_carregamento:
             print("Carregando...")
-            while bateria < 100:
+            while bateria < bateria_informada:
                 incremento = 10  # Incrementa 10% por iteração
                 bateria += incremento
-                bateria = min(bateria, 100)
-                print(f"Bateria recarregada: {bateria}% | {bateria//10} / 10")
+                bateria = min(bateria, bateria_informada)
+                print(f"Bateria recarregada: {bateria:.0f}% | {bateria//10:.0f} / 10")
                 time.sleep(1)
             
             print("Bateria recarregada para 100% na base de carregamento.")
     
-    print(f"Bateria atual: {bateria}%\n")
+    print(f"Bateria atual: {bateria:.0f}%\n")
     return pos_agente, bateria
 
 def sujar(labirinto):
@@ -118,6 +127,7 @@ if __name__ == "__main__":
     tamanho_labirinto = 5
     labirinto = criar_labirinto(tamanho_labirinto)
     bateria = 100
+    bateria_informada = bateria
     porcentagem_critica_bateria = 20
     pos_agente = (2, 2)
     base_carregamento = (2, 2)
